@@ -9,7 +9,11 @@ import matplotlib.pyplot as plt
 from sklearn import tree
 
 df = pd.read_csv('situacoes_alunos_2015-2020.csv')
-df = df.drop(['DT_SIT_ALU', 'N_COLOCA', 'N_TOTESC', 'N_NOTRED'], axis=1)
+
+df = df.loc[df['CD_ANO_INGRESSO'] == 2017]
+df = df.loc[df['CD_SEM_INGRESSO'] == 2]
+
+df = df.drop(['CD_ANO_INGRESSO', 'CD_SEM_INGRESSO', 'DT_SIT_ALU', 'N_COLOCA', 'N_TOTESC', 'N_NOTRED'], axis=1)
 df = df.fillna(0)
 
 label_encoder = preprocessing.LabelEncoder()
@@ -21,9 +25,6 @@ mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
 
 df['DS_ESTADO'] = label_encoder.fit_transform(df['DS_ESTADO'])
 mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
-
-df = df.loc[df['CD_ANO_INGRESSO'] == 2015]
-df = df.loc[df['CD_SEM_INGRESSO'] == 1]
 
 data = df.to_numpy()
 X = data[:,1:]
@@ -41,9 +42,12 @@ report = classification_report(y_test, predictions)
 print("Acurácia do Modelo:", accuracy)
 print("Relatório de Classificação:\n", report)
 
-nomes_das_colunas = df.iloc[:,1:].columns.tolist()
-X_df = pd.DataFrame(X, columns=nomes_das_colunas)  
+nomes_das_colunas_X = df.iloc[:,1:].columns.tolist()
+X_df = pd.DataFrame(X, columns=nomes_das_colunas_X) 
 
-plt.figure(figsize=(15, 10))
-tree.plot_tree(model, filled=True, feature_names=X_df.columns)
+nomes_das_colunas_y = df.iloc[:,:1].columns.tolist()
+y_df = pd.DataFrame(y, columns=nomes_das_colunas_y) 
+
+plt.figure(figsize=(15, 12))
+tree.plot_tree(model, filled=True, feature_names=X_df.columns, class_names=y_df['DS_SIT_ALU'].unique(), fontsize=8)
 plt.show()
