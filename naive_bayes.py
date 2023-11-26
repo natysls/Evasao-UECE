@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 import matplotlib.pyplot as plt
-from sklearn import tree
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.preprocessing import label_binarize
@@ -56,10 +54,6 @@ plt.title('Curva ROC')
 plt.legend()
 plt.show()
 
-
-''''
-arvore = DecisionTreeClassifier(criterion='entropy')
-arvore = arvore.fit(X_train, y_train)
-tree.plot_tree(arvore)
-plt.show()
-'''
+cross_val_results = cross_val_score(m_nb, X, y, cv=5, scoring='accuracy')
+print("Resultados da Validacao Cruzada:", cross_val_results)
+print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
