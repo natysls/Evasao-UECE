@@ -16,7 +16,10 @@ df = df.loc[df['CD_SEM_INGRESSO'] == 2]
 df = df.drop(['CD_ANO_INGRESSO', 'CD_SEM_INGRESSO', 'DT_SIT_ALU', 'N_COLOCA', 'N_TOTESC', 'N_NOTRED'], axis=1)
 df = df.fillna(0)
 
-columns_mapping = ['DS_SIT_ALU', 'DS_BAIRRO', 'DS_CIDADE', 'DS_ESTADO']
+mapeamento = {'TRANSFERIDO': 1, 'GRADUADO': 2, 'CURSANDO': 3, 'ABANDONO': 4,  'DESISTENTE': 5, 'CANCELADO': 6}
+df['DS_SIT_ALU'] = df['DS_SIT_ALU'].replace(mapeamento)
+
+columns_mapping = ['DS_BAIRRO', 'DS_CIDADE', 'DS_ESTADO']
 for coluna in columns_mapping:
     label_encoder = preprocessing.LabelEncoder()
     df[coluna] = label_encoder.fit_transform(df[coluna])
@@ -51,10 +54,15 @@ y_df_test = y_test.values.reshape(-1, 1)
 
 print(X_df_test[y_df_test != y_pred])
 
+mapeamento = {'TRANSFERIDO', 'GRADUADO', 'CURSANDO', 'ABANDONO',  'DESISTENTE', 'CANCELADO'}
+colors = plt.cm.get_cmap('viridis', len(mapeamento))
+
 fig, ax = plt.subplots()
-ax.scatter(x=X_train[coluna1], y=X_train[coluna2], c=y_df_train, alpha=0.9, cmap='viridis')
-ax.scatter(x=X_test[coluna1], y=X_test[coluna2], c=y_pred, alpha=0.6, cmap='viridis')
-ax.scatter(x=X_test[coluna1], y=X_test[coluna2], c=y_df_test, alpha=0.2, cmap='viridis')
+#plt.scatter(x=X_train[coluna1], y=X_train[coluna2], c=y_df_train, alpha=0.9, cmap=colors)
+plt.scatter(x=X_test[coluna1], y=X_test[coluna2], c=y_pred, alpha=0.9, cmap=colors)
+plt.scatter(x=X_test[coluna1], y=X_test[coluna2], c=y_df_test, alpha=0.2, cmap=colors)
+cbar = plt.colorbar()
+cbar.set_label('DS_SIT_ALU')
 
 plt.xlabel(coluna1)
 plt.ylabel(coluna2)
