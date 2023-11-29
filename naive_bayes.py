@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.preprocessing import label_binarize
 import seaborn as sns
 
-df = pd.read_csv('situacoes_alunos_2015-2020.csv')
+df = pd.read_csv('situacao_aluno_2021-2023.csv')
 df = df.drop(['DT_SIT_ALU', 'DS_BAIRRO', 'DS_CIDADE', 'DS_ESTADO', 'N_COLOCA', 'N_TOTESC', 'N_NOTRED'], axis=1)
 df = df.fillna(0)
 ''''
