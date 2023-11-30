@@ -54,11 +54,11 @@ predictions = model.predict(X_test)
 accuracy = accuracy_score(y_test, predictions)
 cross_val_results = cross_val_score(model, X, y, cv=5, scoring='accuracy')
 
+print(f"Quantidade de ocorrências de NÃO EVASÃO: {np.count_nonzero(predictions == '[1]')}")
+print(f"Quantidade de ocorrências de EVASÃO: {np.count_nonzero(predictions == '[2]')}")
 print("Acurácia do Modelo:", accuracy)
-print("Resultados da Validacao Cruzada:", cross_val_results)
-print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
+print("Precisão Média da Validacao Cruzada: {:.2f}%".format(cross_val_results.mean() * 100))
 
-print("Melhores features da Árvore: ", model.feature_importances_)
 indices_ordenados = np.argsort(model.feature_importances_)[::-1]
 print("Características mais importantes:")
 for indice in indices_ordenados:
@@ -84,7 +84,7 @@ def plot_confusao(matriz):
     plt.show()
 
 matriz_confusao = confusion_matrix(y_test, predictions)
-plot_confusao(matriz_confusao)
+#plot_confusao(matriz_confusao)
 
 def scatter(conjunto, classe, col1, col2):
     fig, ax = plt.subplots()
@@ -99,8 +99,8 @@ def scatter(conjunto, classe, col1, col2):
 coluna1 = 'num_idade'
 coluna2 = 'DS_CIDADE'
 y_pred = predictions.reshape(-1, 1)
-y_df_train = y_train.values.reshape(-1, 1)
-y_df_test = y_test.values.reshape(-1, 1)
+y_df_train = y_train.reshape(-1, 1)
+y_df_test = y_test.reshape(-1, 1)
 X_df_train = X_train[[coluna1, coluna2]]
 X_df_test = X_test[[coluna1, coluna2]]
 
