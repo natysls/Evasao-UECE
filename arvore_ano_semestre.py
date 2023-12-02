@@ -5,6 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 from sklearn import tree
 import seaborn as sns
@@ -31,7 +32,7 @@ for coluna in columns_mapping:
     mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
 
 df = df.loc[df['CD_ANO_INGRESSO'] == 2022]
-df = df.loc[df['CD_SEM_INGRESSO'] == 1]
+#df = df.loc[df['CD_SEM_INGRESSO'] == 1]
 
 X = df.iloc[:,1:]
 y = df.iloc[:,:1]
@@ -47,33 +48,43 @@ y = formatar_em_string(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, train_size=0.8, random_state=42)
 
-model = DecisionTreeClassifier(random_state=42, criterion='entropy')
-model.fit(X_train, y_train)
+arvore_decisao = DecisionTreeClassifier(random_state=42, criterion='entropy')
+arvore_decisao.fit(X_train, y_train)
+predictions = arvore_decisao.predict(X_test)
 
-predictions = model.predict(X_test)
-accuracy = accuracy_score(y_test, predictions)
-cross_val_results = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+def validacao(df_X, df_y, arvore, df_X_test, df_y_test, df_y_pred, text):
+    print("Modelo de", text)
+    df_real_pred = pd.DataFrame({'Valores reais':df_y_test, 'Valores previstos':df_y_pred})
+    print(df_real_pred)
 
-print(f"Quantidade de ocorrências de NÃO EVASÃO: {np.count_nonzero(predictions == '[1]')}")
-print(f"Quantidade de ocorrências de EVASÃO: {np.count_nonzero(predictions == '[2]')}")
-print("Acurácia do Modelo:", accuracy)
-print("Precisão Média da Validacao Cruzada: {:.2f}%".format(cross_val_results.mean() * 100))
+    accuracy = accuracy_score(df_y_test, df_y_pred)
+    cross_val_results = cross_val_score(arvore, df_X, df_y, cv=5, scoring='accuracy')
 
-indices_ordenados = np.argsort(model.feature_importances_)[::-1]
-print("Características mais importantes:")
-for indice in indices_ordenados:
-    print(f"C {X_test.columns[indice]}: Importância = {model.feature_importances_[indice]}")
+    print(f"Quantidade de ocorrências de 1-NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
+    print(f"Quantidade de ocorrências de 2-EVASÃO: {np.count_nonzero(df_y_pred == '[2]')}")
+    print("Acurácia do Modelo:", accuracy)
+    print("Precisão Média da Validacao Cruzada: {:.2f}%".format(cross_val_results.mean() * 100))
 
+    indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
+    print("Características mais importantes:")
+    for indice in indices_ordenados:
+        print(f"C {df_X_test.columns[indice]}: Importância = {arvore.feature_importances_[indice]}")
+
+    print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
+    print("\n")
+
+validacao(X, y, arvore_decisao, X_test, y_test, predictions, "Árvore de Decisão")
 
 def plot_arvore(arvore):
     plt.figure(figsize=(15, 12))
     tree.plot_tree(arvore, filled=True, feature_names=X.columns, class_names=arvore.classes_, fontsize=8)
     plt.show()
 
-#plot_arvore(model)
+#plot_arvore(arvore_decisao)
 
-def plot_confusao(matriz):
-    sns.heatmap(matriz, annot=True, fmt='d', cmap='Blues')
+def plot_confusao(df_y_test, df_y_pred):
+    matriz_confusao = confusion_matrix(df_y_test, df_y_pred)
+    sns.heatmap(matriz_confusao, annot=True, fmt='d', cmap='Blues')
     plt.xlabel('Predições')
     plt.ylabel('Verdadeiro')
     plt.title('Matriz de Confusão')
@@ -83,33 +94,10 @@ def plot_confusao(matriz):
     plt.text(1.5, 1.3, f"Verdadeiro Negativo", horizontalalignment='center', verticalalignment='center')
     plt.show()
 
-matriz_confusao = confusion_matrix(y_test, predictions)
-#plot_confusao(matriz_confusao)
+#plot_confusao(y_test, predictions)
 
-def scatter(conjunto, classe, col1, col2):
-    fig, ax = plt.subplots()
-    fig = ax.scatter(x=conjunto[col1], y=conjunto[col2], c=classe, alpha=0.9, cmap='viridis')
-    cbar = plt.colorbar(fig)
-    cbar.set_label('DS_SIT_ALU')
-    plt.xlabel(col1)
-    plt.ylabel(col2)
-    plt.title('Scatter Plot entre ' + col1 + ' e ' + col2)
-    plt.show()
-
-coluna1 = 'num_idade'
-coluna2 = 'DS_CIDADE'
-y_pred = predictions.reshape(-1, 1)
-y_df_train = y_train.reshape(-1, 1)
-y_df_test = y_test.reshape(-1, 1)
-X_df_train = X_train[[coluna1, coluna2]]
-X_df_test = X_test[[coluna1, coluna2]]
-
-#scatter(X_train, y_df_train, coluna1, coluna2)
-
-print(X_df_test[y_df_test != y_pred])
-print(X_df_test)
-print(y_df_test)
-
-#scatter(X_test, y_pred, coluna1, coluna2)
-#scatter(X_test, y_df_test, coluna1, coluna2)
+rf = RandomForestClassifier(n_estimators=300, max_features='sqrt', max_depth=5, random_state=18)
+rf.fit(X_train, y_train)
+y_pred = rf.predict(X_test)
+validacao(X, y, rf, X_test, y_test, y_pred, "Random Forrest")
 

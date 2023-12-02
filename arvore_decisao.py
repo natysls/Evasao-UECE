@@ -43,3 +43,29 @@ print("Relatório de Classificação:\n", report)
 plt.figure(figsize=(15, 10))
 tree.plot_tree(model, filled=True, feature_names=X.columns, class_names=y['DS_SIT_ALU'].unique(), fontsize=8)
 plt.show()
+
+
+def scatter(conjunto, classe, col1, col2):
+    fig, ax = plt.subplots()
+    fig = ax.scatter(x=conjunto[col1], y=conjunto[col2], c=classe, alpha=0.9, cmap='viridis')
+    cbar = plt.colorbar(fig)
+    cbar.set_label('DS_SIT_ALU')
+    plt.xlabel(col1)
+    plt.ylabel(col2)
+    plt.title('Scatter Plot entre ' + col1 + ' e ' + col2)
+    plt.show()
+
+coluna1 = 'num_idade'
+coluna2 = 'DS_CIDADE'
+y_pred = predictions.reshape(-1, 1)
+y_df_train = y_train.reshape(-1, 1)
+y_df_test = y_test.reshape(-1, 1)
+X_df_train = X_train[[coluna1, coluna2]]
+X_df_test = X_test[[coluna1, coluna2]]
+
+#scatter(X_train, y_df_train, coluna1, coluna2)
+
+print(X_df_test[y_df_test != y_pred])
+
+#scatter(X_test, y_pred, coluna1, coluna2)
+#scatter(X_test, y_df_test, coluna1, coluna2)
