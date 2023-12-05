@@ -63,6 +63,11 @@ def validacao_arvore(arvore, df_X_test, df_y_test, df_y_pred, text):
     print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
     print("\n")
 
+    df_acertos = df_X_test[df_y_test == df_y_pred]
+    for coluna in df_acertos.columns:
+        print("Moda da Feature:", coluna, ":", df_acertos[coluna].mode().values)
+    print("\n")
+
 def validacao_naive_bayes(df_X_test, df_y_test, df_y_pred, text):
     print("Modelo de", text)
     df_real_pred = pd.DataFrame({'Valores reais':df_y_test, 'Valores previstos':df_y_pred})
