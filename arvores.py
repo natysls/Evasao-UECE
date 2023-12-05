@@ -30,9 +30,10 @@ def random_forest():
     y_pred = rf.predict(X_test)
 
     operacoes.validacao_arvore(rf, X_test, y_test, y_pred, "Random Forrest")
+    operacoes.plot_random_forest(rf, X, 2)
     operacoes.plot_matrix_confusao(y_test, y_pred)
-    operacoes.curva_roc(rf, X, y,  X_test, y_test)
+    #operacoes.curva_roc(rf, X, y,  X_test, y_test)
 
-arvore_decisao()
+#arvore_decisao()
 
-#random_forest()
+random_forest()

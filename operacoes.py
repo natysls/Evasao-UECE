@@ -1,21 +1,21 @@
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
-from sklearn.preprocessing import label_binarize
 from sklearn import tree
 import seaborn as sns
 
 def filtrando_df():
     df = pd.read_csv('situacao_aluno_2021-2023.csv')
 
-    df = df.loc[df['CD_ANO_INGRESSO'] == 2022]
+    columns_mapping = ['DS_BAIRRO', 'DS_CIDADE']
+    for coluna in columns_mapping:
+        label_encoder = preprocessing.LabelEncoder()
+        df[coluna] = label_encoder.fit_transform(df[coluna])
+        mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
 
-    df = df.drop(['aluno', 'CD_ANO_INGRESSO', 'DT_SIT_ALU', 'DS_ESTADO'], axis=1)
     df = df.fillna(0)
 
     # Preenchendo dados faltosos com a media
@@ -24,18 +24,16 @@ def filtrando_df():
         media_sem_zeros = df[df[coluna] != 0][coluna].mean()
         df[coluna] = df[coluna].replace(0, round(media_sem_zeros))
 
+    df = df.loc[df['CD_ANO_INGRESSO'] == 2022]
+
+    df = df.drop(['aluno', 'CD_ANO_INGRESSO', 'DT_SIT_ALU', 'DS_ESTADO'], axis=1)
+
     evasao = {'CURSANDO': 'NAO EVADIU', 'ABANDONO': 'EVADIU',  'DESISTENTE': 'EVADIU'}
     df['DS_SIT_ALU'] = df['DS_SIT_ALU'].map(evasao)
-    mapeamento = {'NAO EVADIU': 1, 'EVADIU': 2}
+    mapeamento = {'EVADIU': 0, 'NAO EVADIU': 1}
     df['DS_SIT_ALU'] = df['DS_SIT_ALU'].replace(mapeamento)
 
     df['BOLSAS_COTA_PRIORIDADE'] = df['BOLSAS_COTA_PRIORIDADE'].replace(99, 4)
-
-    columns_mapping = ['DS_BAIRRO', 'DS_CIDADE']
-    for coluna in columns_mapping:
-        label_encoder = preprocessing.LabelEncoder()
-        df[coluna] = label_encoder.fit_transform(df[coluna])
-        mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
 
     return df
  
@@ -53,9 +51,8 @@ def validacao_arvore(arvore, df_X_test, df_y_test, df_y_pred, text):
     print(df_real_pred)
 
     accuracy = accuracy_score(df_y_test, df_y_pred)
-
-    print(f"Quantidade de ocorrências de 1-NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
-    print(f"Quantidade de ocorrências de 2-EVASÃO: {np.count_nonzero(df_y_pred == '[2]')}")
+    print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
+    print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
     print("Acurácia do Modelo:", accuracy)
 
     indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
@@ -72,8 +69,8 @@ def validacao_naive_bayes(df_X_test, df_y_test, df_y_pred, text):
     print(df_real_pred)
 
     accuracy = accuracy_score(df_y_test, df_y_pred)
-    print(f"Quantidade de ocorrências de 1-NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
-    print(f"Quantidade de ocorrências de 2-EVASÃO: {np.count_nonzero(df_y_pred == '[2]')}")
+    print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
+    print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
     print("Acurácia do Modelo:", accuracy)
 
     print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
@@ -84,16 +81,21 @@ def plot_arvore(arvore, df_X):
     tree.plot_tree(arvore, filled=True, feature_names=df_X.columns, class_names=arvore.classes_, fontsize=8)
     plt.show()
 
+def plot_random_forest(arvore, df_X, numero_arvore):
+    plt.figure(figsize=(15, 12))
+    tree.plot_tree(arvore.estimators_[numero_arvore], feature_names=df_X.columns, class_names=arvore.classes_, filled=True, rounded=True)
+    plt.show()
+
 def plot_matrix_confusao(df_y_test, df_y_pred):
     matriz_confusao = confusion_matrix(df_y_test, df_y_pred)
     sns.heatmap(matriz_confusao, annot=True, fmt='d', cmap='Blues')
     plt.xlabel('Predições')
     plt.ylabel('Verdadeiro')
     plt.title('Matriz de Confusão')
-    plt.text(0.5, 0.3, f"Verdadeiro Positivo", horizontalalignment='center', verticalalignment='center')
-    plt.text(1.5, 0.3, f"Falso Negativo", horizontalalignment='center', verticalalignment='center')
-    plt.text(0.5, 1.3, f"Falso Positivo", horizontalalignment='center', verticalalignment='center')
-    plt.text(1.5, 1.3, f"Verdadeiro Negativo", horizontalalignment='center', verticalalignment='center')
+    plt.text(0.5, 0.3, f"Evasores evadiram", horizontalalignment='center', verticalalignment='center')
+    plt.text(1.5, 0.3, f"Evasores não evadiram", horizontalalignment='center', verticalalignment='center')
+    plt.text(0.5, 1.3, f"Não evasores evadiram", horizontalalignment='center', verticalalignment='center')
+    plt.text(1.5, 1.3, f"Não evasores não evadiram", horizontalalignment='center', verticalalignment='center')
     plt.show()
 
 def curva_roc(model, df_X, df_y, df_X_test, df_y_test):
