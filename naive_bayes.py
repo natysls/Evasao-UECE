@@ -20,9 +20,11 @@ def naive_bayes(model):
     model.fit(X_train, y_train)
     previsoes = model.predict(X_test)
 
-    operacoes.validacao_naive_bayes(X_test, y_test, previsoes, "Naive Bayes")
+    operacoes.validacao(X_test, y_test, previsoes, "Naive Bayes")
+    operacoes.validacao_cruzada(model, X, y)
     operacoes.plot_matrix_confusao(y_test, previsoes)
-    operacoes.curva_roc(model, X, y, X_test, y_test)
+    #operacoes.curva_roc(model, X, y, X_test, y_test)
+    operacoes.matriz_correlacao(X_train)
 
 naive_bayes(g_nb)
 #naive_bayes(m_nb)

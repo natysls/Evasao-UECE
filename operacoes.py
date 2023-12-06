@@ -45,7 +45,7 @@ def formatar_em_string(y):
     y_string = np.array(y_string) 
     return y_string
 
-def validacao_arvore(arvore, df_X_test, df_y_test, df_y_pred, text):
+def validacao(df_X_test, df_y_test, df_y_pred, text):
     print("Modelo de", text)
     df_real_pred = pd.DataFrame({'Valores reais':df_y_test, 'Valores previstos':df_y_pred})
     print(df_real_pred)
@@ -53,33 +53,30 @@ def validacao_arvore(arvore, df_X_test, df_y_test, df_y_pred, text):
     accuracy = accuracy_score(df_y_test, df_y_pred)
     print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
     print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
+    print("\n")
     print("Acurácia do Modelo:", accuracy)
 
+    print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
+    print("\n")
+
+    df_X_acertos = df_X_test[df_y_test == df_y_pred]
+    df_y_acertos = df_y_test[df_y_test == df_y_pred]
+
+    X_test_reset = df_X_acertos.reset_index(drop=True)
+    y_test_reset = pd.Series(df_y_acertos, name='DT_SIT_ALU').reset_index(drop=True)
+
+    df_combinado = pd.concat([X_test_reset, pd.Series(y_test_reset, name='DT_SIT_ALU')], axis=1)
+    print("Alunos que o modelo acertou:\n", df_combinado)
+    print("\n")
+
+    #print("Alunos que evadiram\n", df_combinado.query('DT_SIT_ALU == [0]'))
+
+def indices_ordenados(arvore, df_X_test):
     indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
     print("Características mais importantes:")
     for indice in indices_ordenados:
         print(f"C {df_X_test.columns[indice]}: Importância = {arvore.feature_importances_[indice]}")
 
-    print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
-    print("\n")
-
-    df_acertos = df_X_test[df_y_test == df_y_pred]
-    for coluna in df_acertos.columns:
-        print("Moda da Feature:", coluna, ":", df_acertos[coluna].mode().values)
-    print("\n")
-
-def validacao_naive_bayes(df_X_test, df_y_test, df_y_pred, text):
-    print("Modelo de", text)
-    df_real_pred = pd.DataFrame({'Valores reais':df_y_test, 'Valores previstos':df_y_pred})
-    print(df_real_pred)
-
-    accuracy = accuracy_score(df_y_test, df_y_pred)
-    print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
-    print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
-    print("Acurácia do Modelo:", accuracy)
-
-    print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
-    print("\n")
 
 def plot_arvore(arvore, df_X):
     plt.figure(figsize=(15, 12))
@@ -103,7 +100,7 @@ def plot_matrix_confusao(df_y_test, df_y_pred):
     plt.text(1.5, 1.3, f"Não evasores não evadiram", horizontalalignment='center', verticalalignment='center')
     plt.show()
 
-def curva_roc(model, df_X, df_y, df_X_test, df_y_test):
+def curva_roc(model, df_X_test, df_y_test):
     probabilidade_positivo_classe = model.predict_proba(df_X_test)
     y_test_binarized = preprocessing.label_binarize(df_y_test, classes=np.unique(df_y_test))
     taxa_fpr, taxa_tpr, thresholds = roc_curve(y_test_binarized, probabilidade_positivo_classe[:,1])
@@ -123,3 +120,8 @@ def validacao_cruzada(model, df_X, df_y):
     cross_val_results = cross_val_score(model, df_X, df_y, cv=5, scoring='accuracy')
     print("Resultados da Validacao Cruzada:", cross_val_results)
     print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
+
+def matriz_correlacao(df):
+    matriz_correlacao = df.corr()
+    sns.heatmap(matriz_correlacao, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.show()

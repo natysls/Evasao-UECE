@@ -18,24 +18,27 @@ def arvore_decisao():
     arvore.fit(X_train, y_train)
     predictions = arvore.predict(X_test)
 
-    operacoes.validacao_arvore(arvore, X_test, y_test, predictions, "Árvore de Decisão")
-    operacoes.plot_arvore(arvore, X)
-    operacoes.plot_matrix_confusao(y_test, predictions)
-    operacoes.curva_roc(arvore, X, y, X_test, y_test)
-    operacoes.validacao_cruzada(arvore, X, y)
+    operacoes.validacao(X_test, y_test, predictions, "Árvore de Decisão")
+    #operacoes.indices_ordenados(arvore, X_test)
+    #operacoes.plot_arvore(arvore, X)
+    #operacoes.plot_matrix_confusao(y_test, predictions)
+    #operacoes.curva_roc(arvore, X_test, y_test)
+    operacoes.validacao_cruzada(arvore, X_train, y_train)
+    #operacoes.matriz_correlacao(X_train)
 
 
-def random_forest():
-    rf = RandomForestClassifier(n_estimators=500, max_features='sqrt', criterion='entropy', max_depth=5, random_state=18)
+def random_forest(num_arvores):
+    rf = RandomForestClassifier(n_estimators=num_arvores, max_features='sqrt', criterion='entropy', max_depth=5, random_state=18)
     rf.fit(X_train, y_train)
     y_pred = rf.predict(X_test)
 
-    operacoes.validacao_arvore(rf, X_test, y_test, y_pred, "Random Forrest")
-    operacoes.plot_random_forest(rf, X, 2)
+    operacoes.validacao(X_test, y_test, y_pred, "Random Forrest")
+    operacoes.plot_random_forest(rf, X, num_arvores)
     operacoes.plot_matrix_confusao(y_test, y_pred)
-    operacoes.curva_roc(rf, X, y,  X_test, y_test)
-    operacoes.validacao_cruzada(rf, X, y)
+    operacoes.curva_roc(rf, X_test, y_test)
+    operacoes.validacao_cruzada(rf, X_train, y_train)
+    operacoes.matriz_correlacao(X)
 
 arvore_decisao()
 
-#random_forest()
+#random_forest(10)
