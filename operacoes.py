@@ -108,10 +108,6 @@ def curva_roc(model, df_X, df_y, df_X_test, df_y_test):
     y_test_binarized = preprocessing.label_binarize(df_y_test, classes=np.unique(df_y_test))
     taxa_fpr, taxa_tpr, thresholds = roc_curve(y_test_binarized, probabilidade_positivo_classe[:,1])
     auc_score = auc(taxa_fpr, taxa_tpr)
-
-    cross_val_results = cross_val_score(model, df_X, df_y, cv=5, scoring='accuracy')
-    print("Resultados da Validacao Cruzada:", cross_val_results)
-    print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
     print("Acurácia da área sob a curva (ROC):", auc_score)
     print("\n")
 
@@ -122,3 +118,8 @@ def curva_roc(model, df_X, df_y, df_X_test, df_y_test):
     plt.title('Curva ROC')
     plt.legend()
     plt.show()
+
+def validacao_cruzada(model, df_X, df_y):
+    cross_val_results = cross_val_score(model, df_X, df_y, cv=5, scoring='accuracy')
+    print("Resultados da Validacao Cruzada:", cross_val_results)
+    print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))

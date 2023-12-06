@@ -22,6 +22,7 @@ def arvore_decisao():
     operacoes.plot_arvore(arvore, X)
     operacoes.plot_matrix_confusao(y_test, predictions)
     operacoes.curva_roc(arvore, X, y, X_test, y_test)
+    operacoes.validacao_cruzada(arvore, X, y)
 
 
 def random_forest():
@@ -33,7 +34,8 @@ def random_forest():
     operacoes.plot_random_forest(rf, X, 2)
     operacoes.plot_matrix_confusao(y_test, y_pred)
     operacoes.curva_roc(rf, X, y,  X_test, y_test)
+    operacoes.validacao_cruzada(rf, X, y)
 
-#arvore_decisao()
+arvore_decisao()
 
-random_forest()
+#random_forest()
