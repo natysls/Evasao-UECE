@@ -19,21 +19,21 @@ def arvore_decisao():
     predictions = arvore.predict(X_test)
 
     operacoes.validacao_arvore(arvore, X_test, y_test, predictions, "Árvore de Decisão")
-    #operacoes.plot_arvore(arvore, X)
-    #operacoes.plot_matrix_confusao(y_test, predictions)
-    #operacoes.curva_roc(arvore, X, y, X_test, y_test)
+    operacoes.plot_arvore(arvore, X)
+    operacoes.plot_matrix_confusao(y_test, predictions)
+    operacoes.curva_roc(arvore, X, y, X_test, y_test)
 
 
 def random_forest():
-    rf = RandomForestClassifier(n_estimators=500, max_features='sqrt', max_depth=5, random_state=18)
+    rf = RandomForestClassifier(n_estimators=500, max_features='sqrt', criterion='entropy', max_depth=5, random_state=18)
     rf.fit(X_train, y_train)
     y_pred = rf.predict(X_test)
 
     operacoes.validacao_arvore(rf, X_test, y_test, y_pred, "Random Forrest")
     operacoes.plot_random_forest(rf, X, 2)
     operacoes.plot_matrix_confusao(y_test, y_pred)
-    #operacoes.curva_roc(rf, X, y,  X_test, y_test)
+    operacoes.curva_roc(rf, X, y,  X_test, y_test)
 
-arvore_decisao()
+#arvore_decisao()
 
-#random_forest()
+random_forest()
