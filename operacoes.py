@@ -36,7 +36,12 @@ def filtrando_df(ano):
     df['BOLSAS_COTA_PRIORIDADE'] = df['BOLSAS_COTA_PRIORIDADE'].replace(99, 4)
 
     return df
- 
+
+def aluno_evadidos(df):
+    alunos_evadidos = df[df['DS_SIT_ALU'] == 0]
+    print("Alunos que evadiram:\n", alunos_evadidos)
+    print("\n")
+
 def formatar_em_string(y):
     y_string = []
     for valor in y.values:
@@ -50,10 +55,8 @@ def validacao(df_X_test, df_y_test, df_y_pred, text):
     df_real_pred = pd.DataFrame({'Valores reais':df_y_test, 'Valores previstos':df_y_pred})
     print(df_real_pred)
 
-    accuracy = accuracy_score(df_y_test, df_y_pred)
     print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
     print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
-    print("Acurácia do Modelo:", accuracy)
 
     print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
     print("\n")
@@ -69,7 +72,12 @@ def validacao(df_X_test, df_y_test, df_y_pred, text):
     print("\n")
 
     alunos_evadidos = df_combinado[df_combinado['DS_SIT_ALU'].apply(lambda x: '[0]' in x)]
-    print("Alunos que evadiram:\n", alunos_evadidos)
+    print("Alunos que o modelo acertou que evadiram:\n", alunos_evadidos)
+    print("\n")
+
+    accuracy = accuracy_score(df_y_test, df_y_pred)
+    print("Acurácia do Modelo:", accuracy)
+    print("\n")
 
 def indices_ordenados(arvore, df_X_test):
     indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
@@ -84,14 +92,14 @@ def plot_arvore(arvore, df_X):
     plt.show()
 
 def plot_random_forest(arvore, df_X, numero_arvore):
-    for i in range(numero_arvore):
+    #for i in range(numero_arvore):
         plt.figure(figsize=(15, 12))
-        tree.plot_tree(arvore.estimators_[i], feature_names=df_X.columns, class_names=arvore.classes_, filled=True, rounded=True, fontsize=8)
+        tree.plot_tree(arvore.estimators_[numero_arvore-1], feature_names=df_X.columns, class_names=arvore.classes_, filled=True, rounded=True, fontsize=8)
         plt.show()
 
 def plot_matrix_confusao(df_y_test, df_y_pred):
     matriz_confusao = confusion_matrix(df_y_test, df_y_pred)
-    print("Matriz de Confusão", matriz_confusao, "\n")
+    print("Matriz de Confusão\n", matriz_confusao, "\n")
     sns.heatmap(matriz_confusao, annot=True, fmt='d', cmap='Blues')
     plt.xlabel('Predições')
     plt.ylabel('Verdadeiro')
@@ -126,5 +134,33 @@ def validacao_cruzada(model, df_train_X, df_train_y):
 
 def matriz_correlacao(df):
     matriz_correlacao = df.corr()
+    correlacoes = matriz_correlacao['DS_SIT_ALU'].sort_values(ascending=False)
+    print("Características mais se correlacionam com DS_SIT_ALU:\n", correlacoes)
+
     sns.heatmap(matriz_correlacao, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.show()
+
+def matriz_correlacao_aprimorada(df_X_test, df_y_test, df_y_pred):
+    df_X_acertos = df_X_test[df_y_test == df_y_pred]
+    df_y_acertos = df_y_test[df_y_test == df_y_pred]
+
+    X_test_reset = df_X_acertos.reset_index(drop=True)
+    y_test_reset = pd.Series(df_y_acertos, name='DS_SIT_ALU').reset_index(drop=True)
+
+    df_combinado = pd.concat([X_test_reset, pd.Series(y_test_reset, name='DS_SIT_ALU')], axis=1)
+    print("Alunos que o modelo acertou:\n", df_combinado)
+    print("\n")
+
+    mapeamento = {'[0]': 0, '[1]': 1}
+    df_combinado['DS_SIT_ALU'] = df_combinado['DS_SIT_ALU'].replace(mapeamento)
+
+    matriz_correlacao = df_combinado.corr()
+    sns.heatmap(matriz_correlacao, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.show()
+
+def scatter(df, col1, col2):
+    plt.scatter(df[col1], df[col2], linestyle='--')
+    plt.xlabel(col1)
+    plt.ylabel(col2)
+    plt.title('Scatter Plot entre ' + col1 + ' e ' + col2)
     plt.show()
