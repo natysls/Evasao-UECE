@@ -5,7 +5,8 @@ from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.metrics import accuracy_score
 import operacoes
 
-df = operacoes.filtrando_df()
+ano = 2022
+df = operacoes.filtrando_df(ano)
 
 X = df.iloc[:,1:]
 y = df.iloc[:,:1]
@@ -23,7 +24,7 @@ def naive_bayes(model):
     operacoes.validacao(X_test, y_test, previsoes, "Naive Bayes")
     operacoes.validacao_cruzada(model, X, y)
     operacoes.plot_matrix_confusao(y_test, previsoes)
-    #operacoes.curva_roc(model, X, y, X_test, y_test)
+    operacoes.curva_roc(model, X_test, y_test)
     operacoes.matriz_correlacao(X_train)
 
 naive_bayes(g_nb)

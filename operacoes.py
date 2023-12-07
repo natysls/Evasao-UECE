@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
 from sklearn import tree
 import seaborn as sns
 
-def filtrando_df():
+def filtrando_df(ano):
     df = pd.read_csv('situacao_aluno_2021-2023.csv')
 
     columns_mapping = ['DS_BAIRRO', 'DS_CIDADE']
@@ -24,7 +24,7 @@ def filtrando_df():
         media_sem_zeros = df[df[coluna] != 0][coluna].mean()
         df[coluna] = df[coluna].replace(0, round(media_sem_zeros))
 
-    df = df.loc[df['CD_ANO_INGRESSO'] == 2022]
+    df = df.loc[df['CD_ANO_INGRESSO'] == ano]
 
     df = df.drop(['aluno', 'CD_ANO_INGRESSO', 'DT_SIT_ALU', 'DS_ESTADO'], axis=1)
 
@@ -53,7 +53,6 @@ def validacao(df_X_test, df_y_test, df_y_pred, text):
     accuracy = accuracy_score(df_y_test, df_y_pred)
     print(f"Quantidade de ocorrências de 0 - EVASÃO: {np.count_nonzero(df_y_pred == '[0]')}")
     print(f"Quantidade de ocorrências de 1 - NÃO EVASÃO: {np.count_nonzero(df_y_pred == '[1]')}")
-    print("\n")
     print("Acurácia do Modelo:", accuracy)
 
     print("Valores que o modelo errou:\n", df_X_test[df_y_test != df_y_pred])
@@ -63,13 +62,14 @@ def validacao(df_X_test, df_y_test, df_y_pred, text):
     df_y_acertos = df_y_test[df_y_test == df_y_pred]
 
     X_test_reset = df_X_acertos.reset_index(drop=True)
-    y_test_reset = pd.Series(df_y_acertos, name='DT_SIT_ALU').reset_index(drop=True)
+    y_test_reset = pd.Series(df_y_acertos, name='DS_SIT_ALU').reset_index(drop=True)
 
-    df_combinado = pd.concat([X_test_reset, pd.Series(y_test_reset, name='DT_SIT_ALU')], axis=1)
+    df_combinado = pd.concat([X_test_reset, pd.Series(y_test_reset, name='DS_SIT_ALU')], axis=1)
     print("Alunos que o modelo acertou:\n", df_combinado)
     print("\n")
 
-    #print("Alunos que evadiram\n", df_combinado.query('DT_SIT_ALU == [0]'))
+    alunos_evadidos = df_combinado[df_combinado['DS_SIT_ALU'].apply(lambda x: '[0]' in x)]
+    print("Alunos que evadiram:\n", alunos_evadidos)
 
 def indices_ordenados(arvore, df_X_test):
     indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
@@ -84,12 +84,14 @@ def plot_arvore(arvore, df_X):
     plt.show()
 
 def plot_random_forest(arvore, df_X, numero_arvore):
-    plt.figure(figsize=(15, 12))
-    tree.plot_tree(arvore.estimators_[numero_arvore], feature_names=df_X.columns, class_names=arvore.classes_, filled=True, rounded=True)
-    plt.show()
+    for i in range(numero_arvore):
+        plt.figure(figsize=(15, 12))
+        tree.plot_tree(arvore.estimators_[i], feature_names=df_X.columns, class_names=arvore.classes_, filled=True, rounded=True, fontsize=8)
+        plt.show()
 
 def plot_matrix_confusao(df_y_test, df_y_pred):
     matriz_confusao = confusion_matrix(df_y_test, df_y_pred)
+    print("Matriz de Confusão", matriz_confusao, "\n")
     sns.heatmap(matriz_confusao, annot=True, fmt='d', cmap='Blues')
     plt.xlabel('Predições')
     plt.ylabel('Verdadeiro')
@@ -116,10 +118,11 @@ def curva_roc(model, df_X_test, df_y_test):
     plt.legend()
     plt.show()
 
-def validacao_cruzada(model, df_X, df_y):
-    cross_val_results = cross_val_score(model, df_X, df_y, cv=5, scoring='accuracy')
+def validacao_cruzada(model, df_train_X, df_train_y):
+    cross_val_results = cross_val_score(model, df_train_X, df_train_y, cv=5, scoring='accuracy')
     print("Resultados da Validacao Cruzada:", cross_val_results)
     print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
+    print("\n")
 
 def matriz_correlacao(df):
     matriz_correlacao = df.corr()
