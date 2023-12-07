@@ -52,4 +52,4 @@ def segundo_naive_bayes():
     operacoes.plot_matrix_confusao(y_test, previsoes)
     operacoes.curva_roc(m_nb, X_test, y_test)
 
-segundo_naive_bayes()
+#segundo_naive_bayes()

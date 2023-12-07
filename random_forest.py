@@ -54,4 +54,4 @@ def segundo_random_forest():
     operacoes.plot_matrix_confusao(y_test, y_pred)
     operacoes.curva_roc(rf, X_test, y_test)
 
-segundo_random_forest()
+#segundo_random_forest()
