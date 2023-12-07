@@ -24,6 +24,7 @@ def naive_bayes():
     previsoes = m_nb.predict(X_test)
 
     operacoes.validacao(X_test, y_test, previsoes, "Naive Bayes Multinomial")
+    operacoes.mais_validacao(y_test, previsoes)
     operacoes.validacao_cruzada(m_nb, X, y)
     operacoes.matriz_correlacao(df)
     operacoes.plot_matrix_confusao(y_test, previsoes)
@@ -45,6 +46,7 @@ def segundo_naive_bayes():
     previsoes = m_nb.predict(X_test)
 
     operacoes.validacao(X_test, y_test, previsoes, "Naive Bayes Multinomial")
+    operacoes.mais_validacao(y_test, previsoes)
     operacoes.validacao_cruzada(m_nb, X, y)
     operacoes.matriz_correlacao(df)
     operacoes.plot_matrix_confusao(y_test, previsoes)

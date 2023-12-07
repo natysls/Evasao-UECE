@@ -22,6 +22,7 @@ def arvore_decisao():
     predictions = arvore.predict(X_test)
 
     operacoes.validacao(X_test, y_test, predictions, "Árvore de Decisão")
+    operacoes.mais_validacao(y_test, predictions)
     operacoes.validacao_cruzada(arvore, X_train, y_train)
     operacoes.matriz_correlacao(df)
     operacoes.indices_ordenados(arvore, X_test)
@@ -48,6 +49,7 @@ def segunda_arvore_decisao():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, train_size=0.8, random_state=42)
     previsoes = arvore.predict(X_test)
     operacoes.validacao(X_test, y_test, previsoes, "Árvore de Decisão")
+    operacoes.mais_validacao(y_test, previsoes)
     operacoes.validacao_cruzada(arvore, X_train, y_train)
     operacoes.matriz_correlacao(df)
     operacoes.indices_ordenados(arvore, X_test)

@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc, precision_score, recall_score, f1_score
 from sklearn import tree
 import seaborn as sns
 
@@ -78,6 +78,15 @@ def validacao(df_X_test, df_y_test, df_y_pred, text):
     accuracy = accuracy_score(df_y_test, df_y_pred)
     print("Acurácia do Modelo:", accuracy)
     print("\n")
+
+def mais_validacao(df_y_test, df_y_pred):
+    precisao = precision_score(df_y_test, df_y_pred, average='weighted', zero_division=0)
+    recall = recall_score(df_y_test, df_y_pred, average='weighted')
+    f1 = f1_score(df_y_test, df_y_pred, average='weighted')
+
+    print(f'Precisão: {precisao:.4f}')
+    print(f'Recall: {recall:.4f}')
+    print(f'F-Score: {f1:.4f}\n')
 
 def indices_ordenados(arvore, df_X_test):
     indices_ordenados = np.argsort(arvore.feature_importances_)[::-1]
