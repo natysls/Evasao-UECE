@@ -23,7 +23,7 @@ def arvore_decisao():
 
     operacoes.validacao(X_test, y_test, predictions, "Árvore de Decisão")
     operacoes.mais_validacao(y_test, predictions)
-    operacoes.validacao_cruzada(arvore, X_train, y_train)
+    operacoes.validacao_cruzada(arvore, X, y)
     operacoes.matriz_correlacao(df)
     operacoes.indices_ordenados(arvore, X_test)
     operacoes.plot_arvore(arvore, X)
@@ -50,7 +50,7 @@ def segunda_arvore_decisao():
     previsoes = arvore.predict(X_test)
     operacoes.validacao(X_test, y_test, previsoes, "Árvore de Decisão")
     operacoes.mais_validacao(y_test, previsoes)
-    operacoes.validacao_cruzada(arvore, X_train, y_train)
+    operacoes.validacao_cruzada(arvore, X, y)
     operacoes.matriz_correlacao(df)
     operacoes.indices_ordenados(arvore, X_test)
     operacoes.plot_arvore(arvore, X)

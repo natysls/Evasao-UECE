@@ -135,8 +135,8 @@ def curva_roc(model, df_X_test, df_y_test):
     plt.legend()
     plt.show()
 
-def validacao_cruzada(model, df_train_X, df_train_y):
-    cross_val_results = cross_val_score(model, df_train_X, df_train_y, cv=5, scoring='accuracy')
+def validacao_cruzada(model, df_X, df_y):
+    cross_val_results = cross_val_score(model, df_X, df_y, cv=5, scoring='accuracy')
     print("Resultados da Validacao Cruzada:", cross_val_results)
     print("Precisão Média: {:.2f}%".format(cross_val_results.mean() * 100))
     print("\n")

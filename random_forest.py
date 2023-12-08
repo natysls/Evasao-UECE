@@ -26,7 +26,7 @@ def random_forest():
 
     operacoes.validacao(X_test, y_test, y_pred, f"Random Forrest com {num_arvores} árvores")
     operacoes.mais_validacao(y_test, y_pred)
-    operacoes.validacao_cruzada(rf, X_train, y_train)
+    operacoes.validacao_cruzada(rf, X, y)
     operacoes.matriz_correlacao(df)
     #operacoes.plot_random_forest(rf, X, num_arvores)
     operacoes.plot_matrix_confusao(y_test, y_pred)
@@ -48,7 +48,7 @@ def segundo_random_forest():
 
     operacoes.validacao(X_test, y_test, y_pred, f"Random Forrest com {num_arvores} árvores")
     operacoes.mais_validacao(y_test, y_pred)
-    operacoes.validacao_cruzada(rf, X_train, y_train)
+    operacoes.validacao_cruzada(rf, X, y)
     operacoes.matriz_correlacao(df)
     operacoes.plot_random_forest(rf, X, num_arvores)
     operacoes.plot_matrix_confusao(y_test, y_pred)
